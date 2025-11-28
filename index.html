@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Typing Piano Drop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1f2933, #020617);
+      color: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .wrapper {
+      max-width: 960px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 24px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 800px) {
+      .wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    select, button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    select {
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+    }
+
+    button {
+      background: #22c55e;
+      color: #022c22;
+      font-weight: 600;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+      box-shadow: 0 6px 18px rgba(34, 197, 94, 0.35);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(34, 197, 94, 0.25);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: #9ca3af;
+      border: 1px solid #374151;
+      box-shadow: none;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    .status-bar span strong {
+      color: #e5e7eb;
+    }
+
+    .canvas-container {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid #111827;
+      background: linear-gradient(to bottom, #020617, #020617);
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 420px;
+      background: radial-gradient(circle at top, #020617, #020617);
+    }
+
+    .input-panel {
+      background: #020617;
+      border-radius: 18px;
+      padding: 12px 14px;
+      border: 1px solid #111827;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .typing-display {
+      font-size: 1.2rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #374151;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .typing-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .cursor {
+      width: 2px;
+      height: 1.2em;
+      background: #22c55e;
+      animation: blink 1s steps(1) infinite;
+      margin-left: 4px;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .level-editor-hint {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      line-height: 1.5;
+      background: #020617;
+      border-radius: 18px;
+      border: 1px dashed #374151;
+      padding: 10px 12px;
+    }
+
+    code {
+      font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.78rem;
+      background: #020617;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="left">
+      <div>
+        <h1>Typing Piano Drop</h1>
+        <p class="subtitle">Type the words on the falling tiles before they hit the line. Each correct word plays a note.</p>
+      </div>
+
+      <div class="controls-row">
+        <select id="levelSelect"></select>
+        <button id="startBtn">Start</button>
+        <button id="pauseBtn" class="secondary">Pause</button>
+      </div>
+
+      <div class="status-bar">
+        <span>Score: <strong id="scoreDisplay">0</strong></span>
+        <span>Misses: <strong id="missDisplay">0</strong></span>
+        <span>Speed: <strong id="speedDisplay">Normal</strong></span>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="gameCanvas" width="600" height="420"></canvas>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="input-panel">
+        <div class="input-label">Your typing</div>
+        <div class="typing-display">
+          <div class="typing-text" id="typingText"></div>
+          <div class="cursor"></div>
+        </div>
+        <div class="hint">
+          Type letters and press <strong>Space</strong> or <strong>Enter</strong> to submit.<br />
+          Hit tiles just before they cross the bottom line for best timing.
+        </div>
+      </div>
+
+      <div class="level-editor-hint">
+        <strong>Editing levels & notes</strong><br />
+        Open <code>index.html</code> and look for the <code>LEVELS</code> array in the script.<br />
+        Each tile is:<br />
+        <code>{ time: seconds, word: "text", note: "C4" }</code><br />
+        Add, remove or change entries to create your own songs.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**********************************************************
+     * 1. CONFIGURATION: LEVELS & NOTES
+     **********************************************************/
+
+    // Simple note-to-frequency map (just enough for demo).
+    // Add more if you like (e.g. A3, F#4 etc).
+    const NOTE_FREQUENCIES = {
+      "C4": 261.63,
+      "D4": 293.66,
+      "E4": 329.63,
+      "F4": 349.23,
+      "G4": 392.00,
+      "A4": 440.00,
+      "B4": 493.88,
+      "C5": 523.25
+    };
+
+    // EDIT THIS to define your own songs / levels.
+    // time: when tile appears (in seconds from start)
+    // word: what you have to type
+    // note: which note plays when you hit it
+    const LEVELS = [
+      {
+        id: "demo1",
+        name: "Warmup (slow)",
+        fallDuration: 4.5, // seconds it takes to fall from top to bottom
+        tiles: [
+          { time: 1.0, word: "la",     note: "C4" },
+          { time: 2.5, word: "la",     note: "D4" },
+          { time: 4.0, word: "la",     note: "E4" },
+          { time: 5.5, word: "play",   note: "G4" },
+          { time: 7.0, word: "music",  note: "C5" },
+          { time: 9.0, word: "type",   note: "E4" },
+          { time: 11.0, word: "piano", note: "G4" }
+        ]
+      },
+      {
+        id: "demo2",
+        name: "Simple Melody",
+        fallDuration: 3.5,
+        tiles: [
+          { time: 0.8, word: "twinkle", note: "C4" },
+          { time: 1.6, word: "little",  note: "C4" },
+          { time: 2.4, word: "star",    note: "G4" },
+          { time: 3.4, word: "how",     note: "G4" },
+          { time: 4.4, word: "i",       note: "A4" },
+          { time: 5.4, word: "wonder",  note: "A4" },
+          { time: 6.4, word: "you",     note: "G4" },
+          { time: 8.0, word: "up",      note: "F4" },
+          { time: 8.8, word: "above",   note: "F4" },
+          { time: 9.6, word: "the",     note: "E4" },
+          { time: 10.4, word: "world",  note: "E4" },
+          { time: 11.2, word: "so",     note: "D4" },
+          { time: 12.0, word: "high",   note: "D4" },
+          { time: 13.0, word: "like",   note: "C4" },
+          { time: 14.0, word: "sky",    note: "C4" }
+        ]
+      }
+    ];
+
+    /**********************************************************
+     * 2. AUDIO (Web Audio API)
+     **********************************************************/
+    let audioCtx = null;
+
+    function ensureAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+    }
+
+    function playNote(noteName, durationSeconds = 0.35) {
+      ensureAudioContext();
+      const freq = NOTE_FREQUENCIES[noteName] || 440;
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.value = freq;
+
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+      gainNode.gain.setValueAtTime(0.18, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + durationSeconds);
+
+      osc.start(now);
+      osc.stop(now + durationSeconds + 0.05);
+    }
+
+    /**********************************************************
+     * 3. GAME STATE
+     **********************************************************/
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const scoreDisplay = document.getElementById("scoreDisplay");
+    const missDisplay = document.getElementById("missDisplay");
+    const speedDisplay = document.getElementById("speedDisplay");
+    const typingTextEl = document.getElementById("typingText");
+    const levelSelect = document.getElementById("levelSelect");
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+
+    let currentLevel = LEVELS[0];
+    let startTime = null;          // timestamp from requestAnimationFrame
+    let paused = false;
+    let pauseOffset = 0;           // total paused time
+    let pauseStartTime = null;
+
+    let activeTiles = [];          // tiles currently falling
+    let remainingTiles = [];       // tiles not spawned yet
+    let score = 0;
+    let misses = 0;
+    let currentInput = "";
+
+    const tileWidth = 150;
+    const tileHeight = 40;
+    const bottomLineY = canvas.height - 40;
+
+    /**********************************************************
+     * 4. INITIALIZATION
+     **********************************************************/
+    function populateLevelSelect() {
+      LEVELS.forEach((level, index) => {
+        const opt = document.createElement("option");
+        opt.value = level.id;
+        opt.textContent = level.name;
+        if (index === 0) opt.selected = true;
+        levelSelect.appendChild(opt);
+      });
+    }
+
+    function resetGame(level) {
+      currentLevel = level || currentLevel;
+      startTime = null;
+      pauseOffset = 0;
+      pauseStartTime = null;
+      paused = false;
+      activeTiles = [];
+      // clone tiles so we don't mutate original config
+      remainingTiles = currentLevel.tiles
+        .map(t => ({ ...t, spawned: false }))
+        .sort((a, b) => a.time - b.time);
+      score = 0;
+      misses = 0;
+      currentInput = "";
+      updateTypingDisplay();
+      updateStatusDisplays();
+      speedDisplay.textContent = currentLevel.fallDuration <= 3 ? "Fast" :
+                                 currentLevel.fallDuration >= 4.5 ? "Slow" :
+                                 "Normal";
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawFrame(0); // draw empty initial frame
+    }
+
+    populateLevelSelect();
+    resetGame(LEVELS[0]);
+
+    /**********************************************************
+     * 5. GAME LOOP
+     **********************************************************/
+    function getGameTimeSeconds(timestamp) {
+      if (startTime === null) return 0;
+      return (timestamp - startTime - pauseOffset) / 1000;
+    }
+
+    function spawnTiles(gameTime) {
+      while (remainingTiles.length > 0 && remainingTiles[0].time <= gameTime) {
+        const base = remainingTiles.shift();
+        const laneCount = 4;
+        const laneIndex = activeTiles.length % laneCount;
+        const laneWidth = canvas.width / laneCount;
+        const x = laneIndex * laneWidth + (laneWidth - tileWidth) / 2;
+
+        activeTiles.push({
+          word: base.word,
+          note: base.note,
+          spawnTime: gameTime,
+          x,
+          y: -tileHeight,
+          hit: false,
+          missed: false
+        });
+      }
+    }
+
+    function updateTiles(gameTime) {
+      const duration = currentLevel.fallDuration;
+
+      activeTiles.forEach(tile => {
+        const t = Math.max(0, Math.min(1, (gameTime - tile.spawnTime) / duration));
+        tile.y = t * (bottomLineY - tileHeight);
+        if (!tile.hit && !tile.missed && tile.y + tileHeight >= bottomLineY + 4) {
+          tile.missed = true;
+          misses += 1;
+          updateStatusDisplays();
+        }
+      });
+
+      // Optionally, remove tiles that are far below
+      activeTiles = activeTiles.filter(tile => tile.y < canvas.height + 50);
+    }
+
+    function drawFrame(gameTime) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, "#020617");
+      gradient.addColorStop(1, "#020617");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Bottom "hit line"
+      ctx.strokeStyle = "#4b5563";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(0, bottomLineY);
+      ctx.lineTo(canvas.width, bottomLineY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw tiles
+      activeTiles.forEach(tile => {
+        // Choose color based on state
+        let fill = "rgba(34,197,94,0.2)";
+        let border = "rgba(34,197,94,0.7)";
+        if (tile.missed && !tile.hit) {
+          fill = "rgba(239,68,68,0.18)";
+          border = "rgba(248,113,113,0.85)";
+        } else if (tile.hit) {
+          fill = "rgba(34,197,94,0.4)";
+          border = "rgba(34,197,94,0.9)";
+        }
+
+        ctx.fillStyle = fill;
+        ctx.strokeStyle = border;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const radius = 10;
+        const x = tile.x;
+        const y = tile.y;
+        const w = tileWidth;
+        const h = tileHeight;
+
+        // rounded rectangle
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // text
+        ctx.fillStyle = "#e5e7eb";
+        ctx.font = "bold 16px system-ui";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(tile.word, x + w / 2, y + h / 2);
+      });
+    }
+
+    function gameLoop(timestamp) {
+      if (paused) {
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+
+      if (startTime === null) {
+        startTime = timestamp;
+      }
+
+      const gameTime = getGameTimeSeconds(timestamp);
+
+      spawnTiles(gameTime);
+      updateTiles(gameTime);
+      drawFrame(gameTime);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    /**********************************************************
+     * 6. INPUT HANDLING
+     **********************************************************/
+    function updateTypingDisplay() {
+      typingTextEl.textContent = currentInput;
+    }
+
+    function submitInput() {
+      const word = currentInput.trim().toLowerCase();
+      if (!word) return;
+      currentInput = "";
+      updateTypingDisplay();
+
+      // Look for a matching tile that is not hit/missed and is near the bottom
+      let bestTile = null;
+      let bestDist = Infinity;
+
+      activeTiles.forEach(tile => {
+        if (tile.hit || tile.missed) return;
+        if (tile.word.toLowerCase() !== word) return;
+        const dist = Math.abs((tile.y + tileHeight) - bottomLineY);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestTile = tile;
+        }
+      });
+
+      if (bestTile) {
+        bestTile.hit = true;
+        score += 10;
+        updateStatusDisplays();
+        playNote(bestTile.note);
+      }
+    }
+
+    function updateStatusDisplays() {
+      scoreDisplay.textContent = score;
+      missDisplay.textContent = misses;
+    }
+
+    window.addEventListener("keydown", (e) => {
+      // Ignore typing when a modifier is held
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === "Backspace") {
+        e.preventDefault();
+        currentInput = currentInput.slice(0, -1);
+        updateTypingDisplay();
+        return;
+      }
+
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        submitInput();
+        return;
+      }
+
+      if (e.key.length === 1) {
+        // Simple character
+        currentInput += e.key;
+        updateTypingDisplay();
+      }
+    });
+
+    /**********************************************************
+     * 7. BUTTONS & LEVEL CHANGE
+     **********************************************************/
+    startBtn.addEventListener("click", () => {
+      // user gesture to unlock audio
+      ensureAudioContext();
+      resetGame(currentLevel);
+      requestAnimationFrame(gameLoop);
+    });
+
+    pauseBtn.addEventListener("click", () => {
+      if (!startTime) return; // not started yet
+
+      if (!paused) {
+        paused = true;
+        pauseStartTime = performance.now();
+        pauseBtn.textContent = "Resume";
+      } else {
+        paused = false;
+        if (pauseStartTime !== null) {
+          const now = performance.now();
+          pauseOffset += now - pauseStartTime;
+        }
+        pauseStartTime = null;
+        pauseBtn.textContent = "Pause";
+      }
+    });
+
+    levelSelect.addEventListener("change", (e) => {
+      const id = e.target.value;
+      const level = LEVELS.find(l => l.id === id);
+      if (level) {
+        resetGame(level);
+      }
+    });
+  </script>
+</body>
+</html>
