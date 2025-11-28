@@ -15,6 +15,8 @@ body {
   padding: 16px;
 }
 
+/* Layout */
+
 .wrapper {
   max-width: 960px;
   width: 100%;
@@ -45,6 +47,8 @@ body {
   gap: 12px;
 }
 
+/* Titles */
+
 h1 {
   font-size: 1.4rem;
   font-weight: 700;
@@ -56,7 +60,10 @@ h1 {
 .subtitle {
   font-size: 0.9rem;
   color: #9ca3af;
+  margin-top: 4px;
 }
+
+/* Controls */
 
 .controls-row {
   display: flex;
@@ -105,6 +112,8 @@ button.secondary {
   box-shadow: none;
 }
 
+/* Status bar */
+
 .status-bar {
   display: flex;
   justify-content: space-between;
@@ -117,6 +126,8 @@ button.secondary {
 .status-bar span strong {
   color: #e5e7eb;
 }
+
+/* Canvas */
 
 .canvas-container {
   border-radius: 18px;
@@ -131,6 +142,8 @@ button.secondary {
   height: 420px;
   background: radial-gradient(circle at top, #020617, #020617);
 }
+
+/* Input panel */
 
 .input-panel {
   background: #020617;
@@ -187,10 +200,7 @@ button.secondary {
   }
 }
 
-.hint {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+/* Judgement + combo */
 
 .judgement-row {
   display: flex;
@@ -206,6 +216,13 @@ button.secondary {
 
 #comboLabel {
   color: #9ca3af;
+}
+
+/* Text hints + editor hint */
+
+.hint {
+  font-size: 0.8rem;
+  color: #6b7280;
 }
 
 .level-editor-hint {

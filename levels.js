@@ -1,4 +1,5 @@
 // levels.js
+
 // Note → frequency map
 const NOTE_FREQUENCIES = {
   C4: 261.63,
