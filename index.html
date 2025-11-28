@@ -262,8 +262,6 @@
      * 1. CONFIGURATION: LEVELS & NOTES
      **********************************************************/
 
-    // Simple note-to-frequency map (just enough for demo).
-    // Add more if you like (e.g. A3, F#4 etc).
     const NOTE_FREQUENCIES = {
       "C4": 261.63,
       "D4": 293.66,
@@ -275,15 +273,12 @@
       "C5": 523.25
     };
 
-    // EDIT THIS to define your own songs / levels.
-    // time: when tile appears (in seconds from start)
-    // word: what you have to type
-    // note: which note plays when you hit it
+    // --- LONGER LEVELS ADDED HERE ---
     const LEVELS = [
       {
         id: "demo1",
         name: "Warmup (slow)",
-        fallDuration: 4.5, // seconds it takes to fall from top to bottom
+        fallDuration: 4.5,
         tiles: [
           { time: 1.0, word: "la",     note: "C4" },
           { time: 2.5, word: "la",     note: "D4" },
@@ -295,25 +290,102 @@
         ]
       },
       {
-        id: "demo2",
-        name: "Simple Melody",
-        fallDuration: 3.5,
+        id: "flow1",
+        name: "Long Practice – Flow",
+        fallDuration: 3.8,
         tiles: [
-          { time: 0.8, word: "twinkle", note: "C4" },
-          { time: 1.6, word: "little",  note: "C4" },
-          { time: 2.4, word: "star",    note: "G4" },
-          { time: 3.4, word: "how",     note: "G4" },
-          { time: 4.4, word: "i",       note: "A4" },
-          { time: 5.4, word: "wonder",  note: "A4" },
-          { time: 6.4, word: "you",     note: "G4" },
-          { time: 8.0, word: "up",      note: "F4" },
-          { time: 8.8, word: "above",   note: "F4" },
-          { time: 9.6, word: "the",     note: "E4" },
-          { time: 10.4, word: "world",  note: "E4" },
-          { time: 11.2, word: "so",     note: "D4" },
-          { time: 12.0, word: "high",   note: "D4" },
-          { time: 13.0, word: "like",   note: "C4" },
-          { time: 14.0, word: "sky",    note: "C4" }
+          { time: 1.0,  word: "type",   note: "C4" },
+          { time: 1.8,  word: "flow",   note: "D4" },
+          { time: 2.6,  word: "beat",   note: "E4" },
+          { time: 3.4,  word: "time",   note: "G4" },
+          { time: 4.2,  word: "keys",   note: "A4" },
+          { time: 5.0,  word: "rhythm", note: "G4" },
+
+          { time: 6.0,  word: "type",   note: "C4" },
+          { time: 6.8,  word: "type",   note: "D4" },
+          { time: 7.6,  word: "type",   note: "E4" },
+          { time: 8.4,  word: "go",     note: "G4" },
+          { time: 9.2,  word: "fast",   note: "A4" },
+          { time: 10.0, word: "now",    note: "G4" },
+
+          { time: 11.0, word: "left",   note: "E4" },
+          { time: 11.8, word: "right",  note: "D4" },
+          { time: 12.6, word: "up",     note: "C4" },
+          { time: 13.4, word: "down",   note: "E4" },
+          { time: 14.2, word: "jump",   note: "G4" },
+          { time: 15.0, word: "tap",    note: "A4" },
+
+          { time: 16.0, word: "focus",  note: "C4" },
+          { time: 16.8, word: "stay",   note: "D4" },
+          { time: 17.6, word: "in",     note: "E4" },
+          { time: 18.4, word: "the",    note: "F4" },
+          { time: 19.2, word: "zone",   note: "G4" },
+          { time: 20.0, word: "now",    note: "A4" },
+
+          { time: 21.0, word: "home",   note: "E4" },
+          { time: 21.8, word: "row",    note: "D4" },
+          { time: 22.6, word: "asdf",   note: "C4" },
+          { time: 23.4, word: "jkl;",   note: "E4" },
+          { time: 24.2, word: "type",   note: "G4" },
+          { time: 25.0, word: "smooth", note: "A4" },
+
+          { time: 26.0, word: "flow",   note: "C4" },
+          { time: 26.8, word: "flow",   note: "D4" },
+          { time: 27.6, word: "flow",   note: "E4" },
+          { time: 28.4, word: "more",   note: "G4" },
+          { time: 29.2, word: "more",   note: "A4" },
+          { time: 30.0, word: "done",   note: "C5" }
+        ]
+      },
+      {
+        id: "arpeggio1",
+        name: "Long Practice – Arpeggios",
+        fallDuration: 3.2,
+        tiles: [
+          { time: 0.8,  word: "do",   note: "C4" },
+          { time: 1.4,  word: "mi",   note: "E4" },
+          { time: 2.0,  word: "so",   note: "G4" },
+          { time: 2.6,  word: "do",   note: "C5" },
+
+          { time: 3.4,  word: "re",   note: "D4" },
+          { time: 4.0,  word: "fa",   note: "F4" },
+          { time: 4.6,  word: "la",   note: "A4" },
+          { time: 5.2,  word: "re",   note: "D4" },
+
+          { time: 6.0,  word: "up",   note: "C4" },
+          { time: 6.6,  word: "up",   note: "E4" },
+          { time: 7.2,  word: "up",   note: "G4" },
+          { time: 7.8,  word: "up",   note: "C5" },
+
+          { time: 8.6,  word: "down", note: "C5" },
+          { time: 9.2,  word: "down", note: "G4" },
+          { time: 9.8,  word: "down", note: "E4" },
+          { time: 10.4, word: "down", note: "C4" },
+
+          { time: 11.2, word: "roll", note: "E4" },
+          { time: 11.8, word: "roll", note: "G4" },
+          { time: 12.4, word: "roll", note: "C5" },
+          { time: 13.0, word: "rest", note: "D4" },
+
+          { time: 14.0, word: "fast", note: "C4" },
+          { time: 14.6, word: "fast", note: "E4" },
+          { time: 15.2, word: "fast", note: "G4" },
+          { time: 15.8, word: "fast", note: "C5" },
+
+          { time: 16.6, word: "clean", note: "A4" },
+          { time: 17.2, word: "clean", note: "G4" },
+          { time: 17.8, word: "clean", note: "E4" },
+          { time: 18.4, word: "clean", note: "C4" },
+
+          { time: 19.4, word: "final", note: "D4" },
+          { time: 20.0, word: "run",   note: "F4" },
+          { time: 20.6, word: "run",   note: "A4" },
+          { time: 21.2, word: "run",   note: "C5" },
+
+          { time: 22.0, word: "done",  note: "C5" },
+          { time: 22.6, word: "gg",    note: "G4" },
+          { time: 23.2, word: "wp",    note: "E4" },
+          { time: 23.8, word: "rest",  note: "C4" }
         ]
       }
     ];
@@ -370,11 +442,13 @@
     let pauseOffset = 0;           // total paused time
     let pauseStartTime = null;
 
-    let activeTiles = [];          // tiles currently falling
-    let remainingTiles = [];       // tiles not spawned yet
+    let activeTiles = [];
+    let remainingTiles = [];
     let score = 0;
     let misses = 0;
     let currentInput = "";
+
+    let lastGameTime = 0;          // for delta timing (pop effect)
 
     const tileWidth = 150;
     const tileHeight = 40;
@@ -399,11 +473,13 @@
       pauseOffset = 0;
       pauseStartTime = null;
       paused = false;
+      lastGameTime = 0;
+
       activeTiles = [];
-      // clone tiles so we don't mutate original config
       remainingTiles = currentLevel.tiles
         .map(t => ({ ...t, spawned: false }))
         .sort((a, b) => a.time - b.time);
+
       score = 0;
       misses = 0;
       currentInput = "";
@@ -413,7 +489,7 @@
                                  currentLevel.fallDuration >= 4.5 ? "Slow" :
                                  "Normal";
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawFrame(0); // draw empty initial frame
+      drawFrame(0);
     }
 
     populateLevelSelect();
@@ -442,32 +518,44 @@
           x,
           y: -tileHeight,
           hit: false,
-          missed: false
+          missed: false,
+          state: "falling",      // "falling" | "popping" | "done"
+          effectProgress: 0
         });
       }
     }
 
-    function updateTiles(gameTime) {
+    function updateTiles(gameTime, delta) {
       const duration = currentLevel.fallDuration;
 
       activeTiles.forEach(tile => {
-        const t = Math.max(0, Math.min(1, (gameTime - tile.spawnTime) / duration));
-        tile.y = t * (bottomLineY - tileHeight);
-        if (!tile.hit && !tile.missed && tile.y + tileHeight >= bottomLineY + 4) {
-          tile.missed = true;
-          misses += 1;
-          updateStatusDisplays();
+        if (tile.state === "falling") {
+          const t = Math.max(0, Math.min(1, (gameTime - tile.spawnTime) / duration));
+          tile.y = t * (bottomLineY - tileHeight);
+
+          if (!tile.hit && !tile.missed && tile.y + tileHeight >= bottomLineY + 4) {
+            tile.missed = true;
+            tile.state = "popping";
+            tile.effectProgress = 0;
+            misses += 1;
+            updateStatusDisplays();
+          }
+        } else if (tile.state === "popping") {
+          tile.effectProgress += delta;
+          // keep it around the bottom line while popping
+          tile.y = bottomLineY - tileHeight - tile.effectProgress * 40;
+          if (tile.effectProgress >= 0.4) {
+            tile.state = "done";
+          }
         }
       });
 
-      // Optionally, remove tiles that are far below
-      activeTiles = activeTiles.filter(tile => tile.y < canvas.height + 50);
+      activeTiles = activeTiles.filter(tile => tile.state !== "done");
     }
 
     function drawFrame(gameTime) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Background gradient
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
       gradient.addColorStop(0, "#020617");
       gradient.addColorStop(1, "#020617");
@@ -486,28 +574,49 @@
 
       // Draw tiles
       activeTiles.forEach(tile => {
-        // Choose color based on state
-        let fill = "rgba(34,197,94,0.2)";
-        let border = "rgba(34,197,94,0.7)";
+        let baseColor = [34, 197, 94]; // green
+        let baseFillAlpha = 0.2;
+        let baseBorderAlpha = 0.7;
+
         if (tile.missed && !tile.hit) {
-          fill = "rgba(239,68,68,0.18)";
-          border = "rgba(248,113,113,0.85)";
+          baseColor = [239, 68, 68]; // red
+          baseFillAlpha = 0.22;
+          baseBorderAlpha = 0.9;
         } else if (tile.hit) {
-          fill = "rgba(34,197,94,0.4)";
-          border = "rgba(34,197,94,0.9)";
+          baseColor = [34, 197, 94]; // stronger green
+          baseFillAlpha = 0.4;
+          baseBorderAlpha = 0.95;
         }
 
-        ctx.fillStyle = fill;
-        ctx.strokeStyle = border;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        const radius = 10;
+        let scale = 1;
+        let fadeAlpha = 1;
+
+        if (tile.state === "popping") {
+          const p = Math.min(tile.effectProgress / 0.4, 1); // 0 → 1
+          scale = 1 + 0.4 * p;       // grow
+          fadeAlpha = 1 - p;         // fade out
+        }
+
+        const fillAlpha = baseFillAlpha * fadeAlpha;
+        const borderAlpha = baseBorderAlpha * fadeAlpha;
+
         const x = tile.x;
         const y = tile.y;
         const w = tileWidth;
         const h = tileHeight;
+        const centerX = x + w / 2;
+        const centerY = y + h / 2;
+        const radius = 10;
 
-        // rounded rectangle
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.scale(scale, scale);
+        ctx.translate(-centerX, -centerY);
+
+        ctx.fillStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${fillAlpha})`;
+        ctx.strokeStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${borderAlpha})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
         ctx.moveTo(x + radius, y);
         ctx.lineTo(x + w - radius, y);
         ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
@@ -521,12 +630,13 @@
         ctx.fill();
         ctx.stroke();
 
-        // text
         ctx.fillStyle = "#e5e7eb";
         ctx.font = "bold 16px system-ui";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(tile.word, x + w / 2, y + h / 2);
+
+        ctx.restore();
       });
     }
 
@@ -538,12 +648,15 @@
 
       if (startTime === null) {
         startTime = timestamp;
+        lastGameTime = 0;
       }
 
       const gameTime = getGameTimeSeconds(timestamp);
+      const delta = Math.max(0, gameTime - lastGameTime);
+      lastGameTime = gameTime;
 
       spawnTiles(gameTime);
-      updateTiles(gameTime);
+      updateTiles(gameTime, delta);
       drawFrame(gameTime);
 
       requestAnimationFrame(gameLoop);
@@ -562,12 +675,11 @@
       currentInput = "";
       updateTypingDisplay();
 
-      // Look for a matching tile that is not hit/missed and is near the bottom
       let bestTile = null;
       let bestDist = Infinity;
 
       activeTiles.forEach(tile => {
-        if (tile.hit || tile.missed) return;
+        if (tile.hit || tile.missed || tile.state !== "falling") return;
         if (tile.word.toLowerCase() !== word) return;
         const dist = Math.abs((tile.y + tileHeight) - bottomLineY);
         if (dist < bestDist) {
@@ -578,6 +690,8 @@
 
       if (bestTile) {
         bestTile.hit = true;
+        bestTile.state = "popping";
+        bestTile.effectProgress = 0;
         score += 10;
         updateStatusDisplays();
         playNote(bestTile.note);
@@ -590,7 +704,6 @@
     }
 
     window.addEventListener("keydown", (e) => {
-      // Ignore typing when a modifier is held
       if (e.metaKey || e.ctrlKey || e.altKey) return;
 
       if (e.key === "Backspace") {
@@ -607,7 +720,6 @@
       }
 
       if (e.key.length === 1) {
-        // Simple character
         currentInput += e.key;
         updateTypingDisplay();
       }
@@ -617,14 +729,13 @@
      * 7. BUTTONS & LEVEL CHANGE
      **********************************************************/
     startBtn.addEventListener("click", () => {
-      // user gesture to unlock audio
       ensureAudioContext();
       resetGame(currentLevel);
       requestAnimationFrame(gameLoop);
     });
 
     pauseBtn.addEventListener("click", () => {
-      if (!startTime) return; // not started yet
+      if (!startTime) return;
 
       if (!paused) {
         paused = true;
