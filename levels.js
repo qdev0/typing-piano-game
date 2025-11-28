@@ -14,23 +14,52 @@ const NOTE_FREQUENCIES = {
 
 // Level definitions
 const LEVELS = [
+  /* ---------------- EASY ---------------- */
+
   {
-    id: "demo1",
-    name: "Warmup (slow)",
-    fallDuration: 4.5,
+    id: "easy_warmup",
+    name: "[Easy] Warmup Steps",
+    fallDuration: 4.8, // slow
     tiles: [
       { time: 1.0, word: "la", note: "C4" },
-      { time: 2.5, word: "la", note: "D4" },
-      { time: 4.0, word: "la", note: "E4" },
-      { time: 5.5, word: "play", note: "G4" },
-      { time: 7.0, word: "music", note: "C5" },
-      { time: 9.0, word: "type", note: "E4" },
-      { time: 11.0, word: "piano", note: "G4" },
+      { time: 3.0, word: "la", note: "D4" },
+      { time: 5.0, word: "la", note: "E4" },
+      { time: 7.0, word: "play", note: "G4" },
+      { time: 9.0, word: "music", note: "C5" },
+
+      { time: 12.0, word: "type", note: "E4" },
+      { time: 14.0, word: "keys", note: "G4" },
+      { time: 16.0, word: "slow", note: "F4" },
+      { time: 18.0, word: "flow", note: "E4" },
+      { time: 20.0, word: "done", note: "C4" },
     ],
   },
+
   {
-    id: "flow1",
-    name: "Long Practice – Flow",
+    id: "easy_home_row",
+    name: "[Easy] Home Row Drill",
+    fallDuration: 4.4,
+    tiles: [
+      { time: 1.0, word: "asdf", note: "C4" },
+      { time: 3.0, word: "jkl;", note: "E4" },
+      { time: 5.0, word: "asdf", note: "G4" },
+      { time: 7.0, word: "jkl;", note: "C5" },
+
+      { time: 10.0, word: "home", note: "E4" },
+      { time: 12.0, word: "row", note: "D4" },
+      { time: 14.0, word: "type", note: "C4" },
+      { time: 16.0, word: "calm", note: "E4" },
+
+      { time: 19.0, word: "easy", note: "G4" },
+      { time: 21.0, word: "mode", note: "C5" },
+    ],
+  },
+
+  /* ---------------- MEDIUM ---------------- */
+
+  {
+    id: "medium_flow",
+    name: "[Medium] Flow Trainer",
     fallDuration: 3.8,
     tiles: [
       { time: 1.0, word: "type", note: "C4" },
@@ -60,26 +89,13 @@ const LEVELS = [
       { time: 18.4, word: "the", note: "F4" },
       { time: 19.2, word: "zone", note: "G4" },
       { time: 20.0, word: "now", note: "A4" },
-
-      { time: 21.0, word: "home", note: "E4" },
-      { time: 21.8, word: "row", note: "D4" },
-      { time: 22.6, word: "asdf", note: "C4" },
-      { time: 23.4, word: "jkl;", note: "E4" },
-      { time: 24.2, word: "type", note: "G4" },
-      { time: 25.0, word: "smooth", note: "A4" },
-
-      { time: 26.0, word: "flow", note: "C4" },
-      { time: 26.8, word: "flow", note: "D4" },
-      { time: 27.6, word: "flow", note: "E4" },
-      { time: 28.4, word: "more", note: "G4" },
-      { time: 29.2, word: "more", note: "A4" },
-      { time: 30.0, word: "done", note: "C5" },
     ],
   },
+
   {
-    id: "arpeggio1",
-    name: "Long Practice – Arpeggios",
-    fallDuration: 3.2,
+    id: "medium_arpeggios",
+    name: "[Medium] Arpeggio Run",
+    fallDuration: 3.4,
     tiles: [
       { time: 0.8, word: "do", note: "C4" },
       { time: 1.4, word: "mi", note: "E4" },
@@ -105,26 +121,67 @@ const LEVELS = [
       { time: 11.8, word: "roll", note: "G4" },
       { time: 12.4, word: "roll", note: "C5" },
       { time: 13.0, word: "rest", note: "D4" },
+    ],
+  },
 
-      { time: 14.0, word: "fast", note: "C4" },
-      { time: 14.6, word: "fast", note: "E4" },
-      { time: 15.2, word: "fast", note: "G4" },
-      { time: 15.8, word: "fast", note: "C5" },
+  /* ---------------- HARD ---------------- */
 
-      { time: 16.6, word: "clean", note: "A4" },
-      { time: 17.2, word: "clean", note: "G4" },
-      { time: 17.8, word: "clean", note: "E4" },
-      { time: 18.4, word: "clean", note: "C4" },
+  {
+    id: "hard_stream",
+    name: "[Hard] Word Stream",
+    fallDuration: 2.9, // fast
+    tiles: [
+      { time: 0.8, word: "go", note: "C4" },
+      { time: 1.3, word: "now", note: "D4" },
+      { time: 1.8, word: "fast", note: "E4" },
+      { time: 2.3, word: "type", note: "G4" },
 
-      { time: 19.4, word: "final", note: "D4" },
-      { time: 20.0, word: "run", note: "F4" },
-      { time: 20.6, word: "run", note: "A4" },
-      { time: 21.2, word: "run", note: "C5" },
+      { time: 2.9, word: "more", note: "A4" },
+      { time: 3.4, word: "more", note: "G4" },
+      { time: 3.9, word: "spam", note: "E4" },
+      { time: 4.4, word: "keys", note: "C4" },
 
-      { time: 22.0, word: "done", note: "C5" },
-      { time: 22.6, word: "gg", note: "G4" },
-      { time: 23.2, word: "wp", note: "E4" },
-      { time: 23.8, word: "rest", note: "C4" },
+      { time: 5.0, word: "left", note: "D4" },
+      { time: 5.5, word: "up", note: "E4" },
+      { time: 6.0, word: "right", note: "G4" },
+      { time: 6.5, word: "down", note: "A4" },
+
+      { time: 7.1, word: "jump", note: "C5" },
+      { time: 7.6, word: "tap", note: "G4" },
+      { time: 8.1, word: "roll", note: "E4" },
+      { time: 8.6, word: "dash", note: "C4" },
+
+      { time: 9.2, word: "focus", note: "F4" },
+      { time: 9.7, word: "hard", note: "G4" },
+      { time: 10.2, word: "mode", note: "A4" },
+      { time: 10.7, word: "on", note: "C5" },
+    ],
+  },
+
+  {
+    id: "hard_pattern",
+    name: "[Hard] Pattern Burst",
+    fallDuration: 2.7, // even faster
+    tiles: [
+      { time: 0.8, word: "aa", note: "C4" },
+      { time: 1.1, word: "ss", note: "D4" },
+      { time: 1.4, word: "dd", note: "E4" },
+      { time: 1.7, word: "ff", note: "F4" },
+
+      { time: 2.1, word: "jj", note: "G4" },
+      { time: 2.4, word: "kk", note: "A4" },
+      { time: 2.7, word: "ll", note: "C5" },
+      { time: 3.0, word: ";;", note: "B4" },
+
+      { time: 3.5, word: "combo", note: "G4" },
+      { time: 3.9, word: "rush", note: "E4" },
+      { time: 4.3, word: "stay", note: "D4" },
+      { time: 4.7, word: "calm", note: "C4" },
+
+      { time: 5.2, word: "final", note: "E4" },
+      { time: 5.6, word: "push", note: "G4" },
+      { time: 6.0, word: "gg", note: "A4" },
+      { time: 6.4, word: "wp", note: "C5" },
     ],
   },
 ];
