@@ -116,6 +116,8 @@
       justify-content: space-between;
       font-size: 0.85rem;
       color: #9ca3af;
+      flex-wrap: wrap;
+      row-gap: 4px;
     }
 
     .status-bar span strong {
@@ -190,6 +192,22 @@
       color: #6b7280;
     }
 
+    .judgement-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    #judgementLabel {
+      font-weight: 600;
+    }
+
+    #comboLabel {
+      color: #9ca3af;
+    }
+
     .level-editor-hint {
       font-size: 0.8rem;
       color: #9ca3af;
@@ -227,6 +245,7 @@
         <span>Score: <strong id="scoreDisplay">0</strong></span>
         <span>Misses: <strong id="missDisplay">0</strong></span>
         <span>Speed: <strong id="speedDisplay">Normal</strong></span>
+        <span>Max Combo: <strong id="maxComboDisplay">0x</strong></span>
       </div>
 
       <div class="canvas-container">
@@ -241,9 +260,13 @@
           <div class="typing-text" id="typingText"></div>
           <div class="cursor"></div>
         </div>
+        <div class="judgement-row">
+          <span id="judgementLabel">Ready</span>
+          <span id="comboLabel">Combo: 0x</span>
+        </div>
         <div class="hint">
           Type letters and press <strong>Space</strong> or <strong>Enter</strong> to submit.<br />
-          Hit tiles just before they cross the bottom line for best timing.
+          Hit tiles just before they cross the bottom line for <strong>Perfect</strong> timing.
         </div>
       </div>
 
@@ -273,7 +296,6 @@
       "C5": 523.25
     };
 
-    // --- LONGER LEVELS ADDED HERE ---
     const LEVELS = [
       {
         id: "demo1",
@@ -431,28 +453,42 @@
     const scoreDisplay = document.getElementById("scoreDisplay");
     const missDisplay = document.getElementById("missDisplay");
     const speedDisplay = document.getElementById("speedDisplay");
+    const maxComboDisplay = document.getElementById("maxComboDisplay");
     const typingTextEl = document.getElementById("typingText");
     const levelSelect = document.getElementById("levelSelect");
     const startBtn = document.getElementById("startBtn");
     const pauseBtn = document.getElementById("pauseBtn");
+    const judgementLabel = document.getElementById("judgementLabel");
+    const comboLabel = document.getElementById("comboLabel");
 
     let currentLevel = LEVELS[0];
-    let startTime = null;          // timestamp from requestAnimationFrame
+    let startTime = null;
     let paused = false;
-    let pauseOffset = 0;           // total paused time
+    let pauseOffset = 0;
     let pauseStartTime = null;
 
     let activeTiles = [];
     let remainingTiles = [];
     let score = 0;
     let misses = 0;
-    let currentInput = "";
-
-    let lastGameTime = 0;          // for delta timing (pop effect)
+    let combo = 0;
+    let maxCombo = 0;
+    let lastGameTime = 0;
 
     const tileWidth = 150;
     const tileHeight = 40;
     const bottomLineY = canvas.height - 40;
+
+    const laneCount = 4;
+    let laneMissStacks = new Array(laneCount).fill(0);
+    const MAX_STACK_HEIGHT = 6; // max red tiles per lane before fail
+
+    // Game over state
+    let gameOver = false;
+    let gameOverTime = 0;
+
+    // Confetti
+    let confettiPieces = [];
 
     /**********************************************************
      * 4. INITIALIZATION
@@ -474,6 +510,9 @@
       pauseStartTime = null;
       paused = false;
       lastGameTime = 0;
+      gameOver = false;
+      gameOverTime = 0;
+      confettiPieces = [];
 
       activeTiles = [];
       remainingTiles = currentLevel.tiles
@@ -482,12 +521,19 @@
 
       score = 0;
       misses = 0;
-      currentInput = "";
+      combo = 0;
+      maxCombo = 0;
+      laneMissStacks = new Array(laneCount).fill(0);
+
       updateTypingDisplay();
       updateStatusDisplays();
-      speedDisplay.textContent = currentLevel.fallDuration <= 3 ? "Fast" :
-                                 currentLevel.fallDuration >= 4.5 ? "Slow" :
-                                 "Normal";
+      setJudgement("Ready", "#e5e7eb");
+
+      speedDisplay.textContent =
+        currentLevel.fallDuration <= 3 ? "Fast" :
+        currentLevel.fallDuration >= 4.5 ? "Slow" :
+        "Normal";
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawFrame(0);
     }
@@ -504,9 +550,8 @@
     }
 
     function spawnTiles(gameTime) {
-      while (remainingTiles.length > 0 && remainingTiles[0].time <= gameTime) {
+      while (!gameOver && remainingTiles.length > 0 && remainingTiles[0].time <= gameTime) {
         const base = remainingTiles.shift();
-        const laneCount = 4;
         const laneIndex = activeTiles.length % laneCount;
         const laneWidth = canvas.width / laneCount;
         const x = laneIndex * laneWidth + (laneWidth - tileWidth) / 2;
@@ -517,11 +562,42 @@
           spawnTime: gameTime,
           x,
           y: -tileHeight,
+          laneIndex,
           hit: false,
           missed: false,
-          state: "falling",      // "falling" | "popping" | "done"
+          state: "falling",   // "falling" | "hitPopping" | "missedStatic" | "done"
           effectProgress: 0
         });
+      }
+    }
+
+    function triggerGameOver() {
+      if (gameOver) return;
+      gameOver = true;
+      gameOverTime = lastGameTime;
+      combo = 0;
+      setJudgement("Game Over", "#f97373");
+      updateStatusDisplays();
+    }
+
+    function handleMiss(tile) {
+      if (tile.missed) return;
+      tile.missed = true;
+      tile.state = "missedStatic";
+
+      const li = tile.laneIndex;
+      const stackIndex = laneMissStacks[li];
+      laneMissStacks[li] = stackIndex + 1;
+
+      tile.y = bottomLineY - tileHeight * (stackIndex + 1);
+
+      misses += 1;
+      combo = 0;
+      setJudgement("Miss", "#f97373");
+      updateStatusDisplays();
+
+      if (laneMissStacks[li] >= MAX_STACK_HEIGHT) {
+        triggerGameOver();
       }
     }
 
@@ -533,28 +609,83 @@
           const t = Math.max(0, Math.min(1, (gameTime - tile.spawnTime) / duration));
           tile.y = t * (bottomLineY - tileHeight);
 
-          if (!tile.hit && !tile.missed && tile.y + tileHeight >= bottomLineY + 4) {
-            tile.missed = true;
-            tile.state = "popping";
-            tile.effectProgress = 0;
-            misses += 1;
-            updateStatusDisplays();
+          if (!tile.hit && !tile.missed && tile.y + tileHeight >= bottomLineY + 2) {
+            handleMiss(tile);
           }
-        } else if (tile.state === "popping") {
+        } else if (tile.state === "hitPopping") {
           tile.effectProgress += delta;
-          // keep it around the bottom line while popping
-          tile.y = bottomLineY - tileHeight - tile.effectProgress * 40;
-          if (tile.effectProgress >= 0.4) {
+          const p = Math.min(tile.effectProgress / 0.4, 1);
+          tile.y -= delta * 40;
+          if (p >= 1) {
             tile.state = "done";
           }
         }
+        // missedStatic: do nothing (stay stacked)
       });
 
       activeTiles = activeTiles.filter(tile => tile.state !== "done");
     }
 
+    function spawnConfetti(x, y, count = 16) {
+      const colors = [
+        [244, 63, 94],   // pink
+        [59, 130, 246],  // blue
+        [234, 179, 8],   // yellow
+        [16, 185, 129]   // teal
+      ];
+
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 160 + Math.random() * 140;
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed - 60;
+        const size = 4 + Math.random() * 4;
+        const ttl = 0.6 + Math.random() * 0.4;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        confettiPieces.push({
+          x,
+          y,
+          vx,
+          vy,
+          size,
+          ttl,
+          life: 0,
+          color,
+          rotation: Math.random() * Math.PI,
+          rotationSpeed: (Math.random() - 0.5) * 8
+        });
+      }
+    }
+
+    function updateConfetti(delta) {
+      const gravity = 400;
+      confettiPieces.forEach(p => {
+        p.life += delta;
+        p.x += p.vx * delta;
+        p.y += p.vy * delta;
+        p.vy += gravity * delta;
+        p.rotation += p.rotationSpeed * delta;
+      });
+      confettiPieces = confettiPieces.filter(p => p.life < p.ttl);
+    }
+
     function drawFrame(gameTime) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.save();
+
+      // Screen shake on game over
+      if (gameOver) {
+        const t = Math.max(0, lastGameTime - gameOverTime);
+        const shakeDuration = 0.5;
+        if (t < shakeDuration) {
+          const intensity = (1 - t / shakeDuration) * 8;
+          const shakeX = (Math.random() * 2 - 1) * intensity;
+          const shakeY = (Math.random() * 2 - 1) * intensity;
+          ctx.translate(shakeX, shakeY);
+        }
+      }
 
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
       gradient.addColorStop(0, "#020617");
@@ -572,33 +703,30 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Draw tiles
+      // Tiles
       activeTiles.forEach(tile => {
         let baseColor = [34, 197, 94]; // green
-        let baseFillAlpha = 0.2;
-        let baseBorderAlpha = 0.7;
+        let fillAlpha = 0.2;
+        let borderAlpha = 0.7;
 
         if (tile.missed && !tile.hit) {
           baseColor = [239, 68, 68]; // red
-          baseFillAlpha = 0.22;
-          baseBorderAlpha = 0.9;
+          fillAlpha = 0.45;
+          borderAlpha = 0.95;
         } else if (tile.hit) {
-          baseColor = [34, 197, 94]; // stronger green
-          baseFillAlpha = 0.4;
-          baseBorderAlpha = 0.95;
+          baseColor = [34, 197, 94];
+          fillAlpha = 0.4;
+          borderAlpha = 0.95;
         }
 
         let scale = 1;
         let fadeAlpha = 1;
 
-        if (tile.state === "popping") {
-          const p = Math.min(tile.effectProgress / 0.4, 1); // 0 → 1
-          scale = 1 + 0.4 * p;       // grow
-          fadeAlpha = 1 - p;         // fade out
+        if (tile.state === "hitPopping") {
+          const p = Math.min(tile.effectProgress / 0.4, 1);
+          scale = 1 + 0.4 * p;
+          fadeAlpha = 1 - p;
         }
-
-        const fillAlpha = baseFillAlpha * fadeAlpha;
-        const borderAlpha = baseBorderAlpha * fadeAlpha;
 
         const x = tile.x;
         const y = tile.y;
@@ -613,8 +741,8 @@
         ctx.scale(scale, scale);
         ctx.translate(-centerX, -centerY);
 
-        ctx.fillStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${fillAlpha})`;
-        ctx.strokeStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${borderAlpha})`;
+        ctx.fillStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${fillAlpha * fadeAlpha})`;
+        ctx.strokeStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${borderAlpha * fadeAlpha})`;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x + radius, y);
@@ -638,6 +766,38 @@
 
         ctx.restore();
       });
+
+      // Confetti
+      confettiPieces.forEach(p => {
+        const alpha = 1 - p.life / p.ttl;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.fillStyle = `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, ${alpha})`;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        ctx.restore();
+      });
+
+      // Game over overlay
+      if (gameOver) {
+        const t = Math.max(0, lastGameTime - gameOverTime);
+        const maxAlpha = 0.65;
+        const alpha = Math.min(maxAlpha, 0.3 + t * 0.5);
+        ctx.fillStyle = `rgba(239,68,68,${alpha})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgba(15,23,42,0.9)";
+        ctx.font = "bold 36px system-ui";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
+
+        ctx.font = "16px system-ui";
+        ctx.fillStyle = "rgba(249,250,251,0.9)";
+        ctx.fillText("Press Start to try again", canvas.width / 2, canvas.height / 2 + 22);
+      }
+
+      ctx.restore();
     }
 
     function gameLoop(timestamp) {
@@ -655,21 +815,44 @@
       const delta = Math.max(0, gameTime - lastGameTime);
       lastGameTime = gameTime;
 
-      spawnTiles(gameTime);
-      updateTiles(gameTime, delta);
+      if (!gameOver) {
+        spawnTiles(gameTime);
+        updateTiles(gameTime, delta);
+      }
+
+      updateConfetti(delta);
       drawFrame(gameTime);
 
       requestAnimationFrame(gameLoop);
     }
 
     /**********************************************************
-     * 6. INPUT HANDLING
+     * 6. INPUT & SCORING
      **********************************************************/
+    let currentInput = "";
+
     function updateTypingDisplay() {
       typingTextEl.textContent = currentInput;
     }
 
+    function setJudgement(text, color) {
+      judgementLabel.textContent = text;
+      judgementLabel.style.color = color || "#e5e7eb";
+    }
+
+    function updateStatusDisplays() {
+      scoreDisplay.textContent = score;
+      missDisplay.textContent = misses;
+      comboLabel.textContent = `Combo: ${combo}x`;
+      maxComboDisplay.textContent = `${maxCombo}x`;
+    }
+
     function submitInput() {
+      if (gameOver) {
+        setJudgement("Game Over", "#f97373");
+        return;
+      }
+
       const word = currentInput.trim().toLowerCase();
       if (!word) return;
       currentInput = "";
@@ -689,18 +872,43 @@
       });
 
       if (bestTile) {
-        bestTile.hit = true;
-        bestTile.state = "popping";
-        bestTile.effectProgress = 0;
-        score += 10;
-        updateStatusDisplays();
-        playNote(bestTile.note);
-      }
-    }
+        // Timing judgement
+        let judgement = "Good";
+        let basePoints = 50;
+        let color = "#fde68a";
 
-    function updateStatusDisplays() {
-      scoreDisplay.textContent = score;
-      missDisplay.textContent = misses;
+        if (bestDist <= 10) {
+          judgement = "Perfect";
+          basePoints = 100;
+          color = "#4ade80";
+        } else if (bestDist <= 25) {
+          judgement = "Great";
+          basePoints = 70;
+          color = "#a5b4fc";
+        } else if (bestDist > 45) {
+          judgement = "Late";
+          basePoints = 30;
+          color = "#fbbf24";
+        }
+
+        bestTile.hit = true;
+        bestTile.state = "hitPopping";
+        bestTile.effectProgress = 0;
+
+        combo += 1;
+        if (combo > maxCombo) maxCombo = combo;
+
+        const multiplier = 1 + (combo - 1) * 0.1;
+        const gained = Math.round(basePoints * multiplier);
+        score += gained;
+
+        setJudgement(`${judgement} (+${gained})`, color);
+        playNote(bestTile.note);
+        spawnConfetti(bestTile.x + tileWidth / 2, bestTile.y + tileHeight / 2, 22);
+        updateStatusDisplays();
+      } else {
+        setJudgement("No match", "#9ca3af");
+      }
     }
 
     window.addEventListener("keydown", (e) => {
