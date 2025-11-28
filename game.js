@@ -214,10 +214,11 @@
     combo = 0;
     setJudgement("Miss", "#f97373");
     updateStatusDisplays();
-
-    if (laneMissStacks[laneIndex] >= MAX_STACK_HEIGHT) {
-      triggerGameOver();
+    
+    if (misses >= 5) {
+        triggerGameOver();
     }
+
   }
 
   function updateTiles(gameTime, delta) {
