@@ -221,32 +221,37 @@
   }
 
   function updateTiles(gameTime, delta) {
-    const duration = currentLevel.fallDuration;
+  const duration = currentLevel.fallDuration;
 
-    activeTiles.forEach((tile) => {
-      if (tile.state === "falling") {
-        const t = Math.max(
-          0,
-          Math.min(1, (gameTime - tile.spawnTime) / duration)
-        );
-        tile.y = t * (bottomLineY - tileHeight);
+  activeTiles.forEach((tile) => {
+    if (tile.state === "falling") {
+      const t = Math.max(
+        0,
+        Math.min(1, (gameTime - tile.spawnTime) / duration)
+      );
 
-        if (!tile.hit && !tile.missed && tile.y + tileHeight >= bottomLineY + 2) {
-          handleMiss(tile);
-        }
-      } else if (tile.state === "hitPopping") {
-        tile.effectProgress += delta;
-        const p = Math.min(tile.effectProgress / 0.4, 1);
-        tile.y -= delta * 40; // small pop upwards
-        if (p >= 1) {
-          tile.state = "done";
-        }
+      // Move from top to just touching the bottom line
+      tile.y = t * (bottomLineY - tileHeight);
+
+      // MISS: as soon as the tile's bottom reaches the line
+      if (!tile.hit && !tile.missed && tile.y + tileHeight >= bottomLineY) {
+        handleMiss(tile);
       }
-      // missedStatic stays
-    });
+    } else if (tile.state === "hitPopping") {
+      tile.effectProgress += delta;
+      const p = Math.min(tile.effectProgress / 0.4, 1);
+      tile.y -= delta * 40; // small pop upwards
+      if (p >= 1) {
+        tile.state = "done";
+      }
+    }
+    // "missedStatic" tiles stay in place as stacked red blocks
+  });
 
-    activeTiles = activeTiles.filter((tile) => tile.state !== "done");
-  }
+  // Remove tiles whose pop animation is finished
+  activeTiles = activeTiles.filter((tile) => tile.state !== "done");
+}
+
 
   /**********************************************************
    * 5. CONFETTI
